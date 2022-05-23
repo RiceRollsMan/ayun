@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.ayun.mapper.FileMapper">
+<!--wenjianzhanshi-->
+    <select id="showFiles" resultType="com.example.ayun.pojo.YunFile">
+        <!--        &lt;!&ndash;   想知道这里sql语句为什么这么写嘛。额，试出来的。-->
+        select * from file where state=1 and filePath like concat(#{presentPath},'%') order by  isDir desc;
+    </select>
+    <select id="showNormalFiles" resultType="com.example.ayun.pojo.YunFile">
+        <!--        &lt;!&ndash;   想知道这里sql语句为什么这么写嘛。额，试出来的。正常的-->
+        select * from file where state=1 and filePath like concat(#{presentPath},'%') order by  isDir desc;
+    </select>
+    <select id="showDeletedFiles" resultType="com.example.ayun.pojo.YunFile">
+        <!--        &lt;!&ndash;   想知道这里sql语句为什么这么写嘛。额，试出来的。已经被删了的-->
+        select * from file where (state=0 or state=2  )and filePath like concat(#{presentPath},'%') order by  isDir desc;
+    </select>
+<!--    wenjianshangchuan-->
+    <insert id="addFile" parameterType="com.example.ayun.pojo.YunFile">
+    insert into file(id,userName,fileName,filePath,fileSize,fileType,state,isDir,addDate)
+    values(#{id},#{userName},#{fileName},#{filePath},#{fileSize},#{fileType},#{state},#{isDir},#{addDate})
+    </insert>
+<!--    -->
+    <select id="getFolderPathById" resultType="String">
+        select filePath from file where id = #{id}
+    </select>
+<!--    chaungjianwenjianjia-->
+    <insert id="makeAFolder" parameterType="com.example.ayun.pojo.YunFile">
+        insert into file(id,userName,fileName,filePath,fileSize,fileType,state,isDir,addDate)
+        values(#{id},#{userName},#{fileName},#{filePath},#{fileSize},#{fileType},#{state},#{isDir},#{addDate})
+    </insert>
+<!--    -->
+    <select id="getFilesByPath" resultType="com.example.ayun.pojo.YunFile">
+        select * from file where filePath like concat(#{filePath},'%') and state=1
+    </select>
+    <insert id="addShareFile" parameterType="com.example.ayun.pojo.YunFile">
+        insert into file(id,userName,fileName,filePath,fileSize,fileType,state,isDir,addDate)
+        values(#{id},#{userName},#{fileName},#{filePath},#{fileSize},#{fileType},#{state},#{isDir},#{addDate})
+    </insert>
+<!--    -->
+    <select id="queryFileById" resultType="com.example.ayun.pojo.YunFile" >
+        select * from file where id=#{id} and state=1
+    </select>
+<!--    -->
+    <update id="deleteFile">
+        update file set state=2,deleteDate=#{deleteDate} where filePath like concat(#{filePath},'%');
+    </update>
+    <update id="deleteFolder">
+        update file set state=2,deleteDate=#{deleteDate} where state=1 and filePath like concat(#{filePath},'%');
+        update file set state=0,deleteDate=#{deleteDate} where filePath = #{filePath};
+    </update>
+    <update id="deleteForever">
+        update file set state=-1 where filePath like concat(#{filePath},'%');
+    </update>
+    <update id="renameFile">
+        update file set fileName=#{fileName} where id=#{id}
+    </update>
+<!--    -->
+    <select id="queryFilesByFileName"  parameterType="java.util.Map" resultType="com.example.ayun.pojo.YunFile">
+        select * from file where fileName like concat ('%',#{fileName},'%') and state=1 and filePath like concat (#{filePath},'%') order by isDir desc
+    </select>
+<!--    -->
+    <update id="restoreFile">
+        update file set state=1,deleteDate=null where filePath=#{filePath}
+    </update>
+    <update id="restoreFolder">
+        update file set state=1,deleteDate=null where state=2 and filePath like concat(#{filepath},'%');
+        update file set state=1,deleteDate=null where filePath=#{filePath}
+    </update>
+<!--    -->
+    <select id="queryFileByIdAll" resultType="com.example.ayun.pojo.YunFile">
+        select * from file where id=#{id}
+    </select>
+
+</mapper>
